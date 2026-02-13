@@ -10,19 +10,21 @@
         body {
             margin: 0; padding: 40px 20px; font-family: 'Minecraftia', sans-serif;
             background: #1e1e1e url('https://www.transparenttextures.com/patterns/dark-dirt.png');
-            display: flex; justify-content: center;
+            display: flex; justify-content: center; min-height: 100vh;
         }
         .inventory-container { width: 100%; max-width: 600px; }
-        .header-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .header-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .chest-icon { width: 50px; image-rendering: pixelated; }
+        
         .inventory-ui {
             background-color: #C6C6C6; border: 4px solid #373737;
             border-top-color: #FFF; border-left-color: #FFF;
             padding: 30px; box-shadow: 10px 10px 0px #000;
         }
-        h2 { font-size: 1.2rem; color: #3F3F3F; text-transform: uppercase; margin: 0 0 10px 0; text-align: center; }
+
+        h2 { font-size: 1.2rem; color: #3F3F3F; text-transform: uppercase; margin: 0; text-align: center; }
         
-        /* Auth Gate Styling */
+        /* Auth Gate Styles */
         #auth-gate { text-align: center; }
         input[type="password"] {
             width: 80%; padding: 12px; margin: 20px 0;
@@ -31,16 +33,18 @@
             color: #00FF00; font-family: 'Minecraftia'; outline: none;
         }
 
-        /* Message Slot Styling */
+        /* Message Slot Styles */
         .message-slot {
             background: #8B8B8B; border: 3px solid #373737; border-top-color: #555; border-left-color: #555;
             padding: 15px; margin-top: 15px; position: relative; color: white; text-shadow: 2px 2px #3F3F3F;
+            word-wrap: break-word;
         }
         .delete-btn {
             position: absolute; top: 10px; right: 10px; background: #A0A0A0;
-            border: 2px solid #000; color: #AA0000; font-family: 'Minecraftia', sans-serif;
+            border: 2px solid #000; color: #AA0000; font-family: 'Minecraftia';
             font-size: 10px; cursor: pointer;
         }
+
         button {
             padding: 12px 25px; background-color: #A0A0A0;
             border: 4px solid #000; border-top-color: #D0D0D0; border-left-color: #D0D0D0;
@@ -62,11 +66,11 @@
                 <p style="color: #3F3F3F;">Admin Key Required</p>
                 <input type="password" id="adminPass" placeholder="******">
                 <br>
-                <button onclick="checkPassword()">UNLOCK</button>
+                <button onclick="unlock()">UNLOCK</button>
             </div>
 
             <div id="messages-display" style="display: none;">
-                <div id="list-content">Loading secrets...</div>
+                <div id="list-content">Scanning inventory...</div>
                 <button class="logout-btn" onclick="location.reload()">LOCK CHEST</button>
             </div>
         </div>
@@ -74,38 +78,52 @@
 
     <script>
         const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
-        
-        // Change this to your actual desired password
-        const MASTER_PASS = "YOUR_SECRET_KEY"; 
 
-        function checkPassword() {
-            const input = document.getElementById('adminPass').value;
-            if (input === MASTER_PASS) {
-                document.getElementById('auth-gate').style.display = 'none';
-                document.getElementById('messages-display').style.display = 'block';
-                document.getElementById('title-text').innerText = "Inventory";
-                startLiveUpdates();
-            } else {
-                alert("Incorrect Key!");
-            }
+        function unlock() {
+            const pass = document.getElementById('adminPass').value;
+            // We pass the key directly to the real-time listener
+            startLiveUpdates(pass);
         }
 
-        function startLiveUpdates() {
-            client.onUpdate("messages:list", {}, (messages) => {
+        function startLiveUpdates(pass) {
+            client.onUpdate("messages:list", { adminKey: pass }, (messages) => {
                 const list = document.getElementById('list-content');
-                if (messages.length === 0) { list.innerHTML = "Chest is empty..."; return; }
-                list.innerHTML = messages.map(msg => `
-                    <div class="message-slot">
-                        <p>${msg.body}</p>
-                        <button class="delete-btn" onclick="deleteMsg('${msg._id}')">DROP</button>
-                    </div>
-                `).join('');
+                const authGate = document.getElementById('auth-gate');
+                const display = document.getElementById('messages-display');
+                const title = document.getElementById('title-text');
+
+                // If the server returns null, the key was wrong
+                if (messages === null) {
+                    alert("Invalid Admin Key!");
+                    return;
+                }
+
+                // Successful login
+                authGate.style.display = 'none';
+                display.style.display = 'block';
+                title.innerText = "Inventory";
+
+                if (messages.length === 0) {
+                    list.innerHTML = "<p style='color:#3F3F3F; text-align:center;'>Chest is empty...</p>";
+                } else {
+                    list.innerHTML = messages.map(msg => `
+                        <div class="message-slot">
+                            <p>${msg.body}</p>
+                            <button class="delete-btn" onclick="deleteMsg('${msg._id}')">DROP</button>
+                        </div>
+                    `).join('');
+                }
             });
         }
 
         async function deleteMsg(id) {
-            if (confirm("Drop item from inventory?")) {
-                await client.mutation("messages:remove", { id });
+            const pass = document.getElementById('adminPass').value;
+            if (confirm("Drop this item?")) {
+                try {
+                    await client.mutation("messages:remove", { id, adminKey: pass });
+                } catch (err) {
+                    alert("Unauthorized!");
+                }
             }
         }
     </script>
