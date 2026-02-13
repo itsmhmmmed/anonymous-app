@@ -3,78 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonymous Messages</title>
+    <title>Send an Anonymous Message</title>
     <script src="https://unpkg.com/convex@1.13.0/dist/browser.bundle.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { color: #1c1e21; text-align: center; }
-        textarea { width: 100%; height: 100px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; resize: none; margin-bottom: 10px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #1c1e21; margin-bottom: 20px; }
+        textarea { width: 100%; height: 120px; border-radius: 10px; border: 1px solid #ddd; padding: 15px; box-sizing: border-box; resize: none; font-size: 16px; margin-bottom: 15px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 10px; background-color: #007bff; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
         button:hover { background-color: #0056b3; }
-        #messages-list { width: 100%; max-width: 400px; margin-top: 20px; }
-        .message-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .message-card p { margin: 0; color: #333; }
-        .message-card small { color: #888; font-size: 0.8rem; }
+        #status { margin-top: 15px; font-size: 14px; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>Send an Anonymous Message</h2>
-        <textarea id="messageInput" placeholder="Type your secret message here..."></textarea>
+        <textarea id="messageInput" placeholder="Type your secret here..."></textarea>
         <button onclick="sendMessage()">Send Message</button>
+        <p id="status"></p>
     </div>
 
-    <div id="messages-list">
-        </div>
-
     <script>
-        // 2. Initialize the Convex Client
-        
-         const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
+        // Replace with your URL from .env.local
+        const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
 
-        // 3. Function to send a message (Mutation)
         async function sendMessage() {
             const input = document.getElementById('messageInput');
+            const status = document.getElementById('status');
             const text = input.value.trim();
 
             if (!text) {
-                alert("Please enter a message!");
+                status.innerText = "Please enter a message!";
+                status.style.color = "red";
                 return;
             }
 
             try {
-                // Calls the 'send' function in convex/messages.js
+                // We ONLY call the send mutation. 
+                // There is no list query anymore!
                 await client.mutation("messages:send", { 
                     body: text, 
                     author: "Anonymous" 
                 });
                 
-                input.value = ""; // Clear input
-                alert("Message sent successfully!");
+                input.value = ""; 
+                status.innerText = "Sent successfully! Only the admin can read this.";
+                status.style.color = "green";
             } catch (error) {
-                console.error("Error sending message:", error);
-                alert("Failed to send message. Check console.");
+                console.error("Error:", error);
+                status.innerText = "Failed to send. Try again.";
+                status.style.color = "red";
             }
         }
-
-        // 4. Function to fetch and display messages (Query)
-        // Convex "onUpdate" automatically refreshes the UI when data changes!
-        function setupSubscription() {
-            client.onUpdate("messages:list", {}, (messages) => {
-                const listContainer = document.getElementById('messages-list');
-                listContainer.innerHTML = messages.map(msg => `
-                    <div class="message-card">
-                        <p>${msg.body}</p>
-                        <small>${new Date(msg.time).toLocaleString()}</small>
-                    </div>
-                `).join('');
-            });
-        }
-
-        // Start listening for messages as soon as the page loads
-        setupSubscription();
     </script>
 </body>
 </html>
