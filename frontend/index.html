@@ -3,39 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tassndo9t | Autumn Edition</title>
+    <title>Tassndo9t | Pixel Edition</title>
     <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
     <script src="https://unpkg.com/convex@1.13.0/dist/browser.bundle.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            overflow: hidden; font-family: 'Minecraftia', sans-serif;
+            font-family: 'Minecraftia', sans-serif;
             display: flex; justify-content: center; align-items: center;
+            /* Using a high-quality Minecraft pixel art GIF */
+            background: url('https://i.pinimg.com/originals/81/81/ef/8181ef80a5e52c875d6880029d674116.gif') no-repeat center center fixed;
+            background-size: cover;
+            image-rendering: pixelated; /* Keeps the GIF sharp */
         }
 
-        /* Video Background Styling */
-        .video-wrapper {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -2; pointer-events: none;
-        }
-
-        .video-wrapper iframe {
-            width: 100vw; height: 56.25vw; /* 16:9 ratio */
-            min-height: 100vh; min-width: 177.77vh;
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* Dark overlay for contrast */
+        /* The Dark Overlay for contrast */
         .overlay {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); 
-            z-index: -1;
+            background: rgba(0, 0, 0, 0.65); 
+            z-index: 1;
         }
 
-        /* The Box UI */
         .chest-ui {
             background-color: #C6C6C6; 
             border: 4px solid #373737;
@@ -61,12 +50,12 @@
         }
 
         textarea {
-            width: 100%; height: 120px; background: transparent; border: none;
+            width: 100%; height: 100px; background: transparent; border: none;
             color: #00FF00; font-family: 'Minecraftia', sans-serif;
             font-size: 14px; resize: none; outline: none; box-sizing: border-box;
         }
 
-        .char-count { text-align: right; font-size: 10px; color: #555; margin: 5px 0 15px 0; }
+        .char-count { text-align: right; font-size: 10px; color: #555; margin: 5px 0 10px 0; }
 
         button {
             width: 100%; padding: 15px; background-color: #A0A0A0;
@@ -75,15 +64,10 @@
             font-size: 16px; cursor: pointer; text-shadow: 2px 2px #3F3F3F;
         }
 
-        #status { margin-top: 15px; font-size: 12px; text-align: center; min-height: 18px; }
+        #status { margin-top: 10px; font-size: 12px; text-align: center; min-height: 18px; }
     </style>
 </head>
 <body>
-
-    <div class="video-wrapper">
-        <iframe src="https://www.youtube-nocookie.com/embed/Im6RusHotNY?autoplay=1&mute=1&loop=1&playlist=Im6RusHotNY&controls=0&showinfo=0&rel=0&iv_load_policy=3" 
-                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
 
     <div class="overlay"></div>
 
@@ -94,7 +78,7 @@
         </div>
         
         <div class="input-slot">
-            <textarea id="messageInput" maxlength="500" oninput="updateCount()" placeholder="Add secret to chest..."></textarea>
+            <textarea id="messageInput" maxlength="500" oninput="updateCount()" placeholder="Drop a secret..."></textarea>
         </div>
         <div class="char-count" id="count">0/500</div>
         
