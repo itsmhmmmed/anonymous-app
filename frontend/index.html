@@ -11,18 +11,28 @@
             margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Minecraftia', sans-serif;
             display: flex; justify-content: center; align-items: center;
-            /* Using a high-quality Minecraft pixel art GIF */
-            background: url('https://i.pinimg.com/originals/81/81/ef/8181ef80a5e52c875d6880029d674116.gif') no-repeat center center fixed;
-            background-size: cover;
-            image-rendering: pixelated; /* Keeps the GIF sharp */
+            background-color: #1a1a1a; /* Fallback color */
         }
 
-        /* The Dark Overlay for contrast */
+        /* Using a stable Minecraft Pixel Art GIF */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* High-quality pixel art of a Minecraft landscape */
+            background: url('https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJvYnZ3eXJ6eXJ6eXJ6eXJ6eXJ6eXJ6eXJ6eXJ6eXJ6eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/V4NSRTsYdVr7nNq463/giphy.gif') no-repeat center center fixed;
+            background-size: cover;
+            image-rendering: pixelated; 
+            z-index: -2;
+        }
+
         .overlay {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.65); 
-            z-index: 1;
+            z-index: -1;
         }
 
         .chest-ui {
@@ -31,7 +41,7 @@
             border-top-color: #FFF; border-left-color: #FFF;
             padding: 20px; width: 90%; max-width: 400px;
             box-shadow: 10px 10px 0px #000;
-            position: relative; z-index: 10;
+            position: relative;
         }
 
         .internal-header {
@@ -69,6 +79,7 @@
 </head>
 <body>
 
+    <div class="animated-bg"></div>
     <div class="overlay"></div>
 
     <div class="chest-ui">
