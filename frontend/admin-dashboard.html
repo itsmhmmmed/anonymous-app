@@ -8,133 +8,54 @@
     <script src="https://unpkg.com/convex@1.13.0/dist/browser.bundle.js"></script>
     <style>
         body {
-            margin: 0;
-            padding: 40px 20px;
-            font-family: 'Minecraftia', sans-serif;
+            margin: 0; padding: 40px 20px; font-family: 'Minecraftia', sans-serif;
             background: #1e1e1e url('https://www.transparenttextures.com/patterns/dark-dirt.png');
-            color: #3F3F3F;
-            display: flex;
-            justify-content: center;
+            display: flex; justify-content: center;
         }
-
-        .inventory-container {
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        .chest-icon {
-            width: 100px;
-            image-rendering: pixelated;
-            margin-bottom: -15px;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
-        }
-
+        .inventory-container { width: 100%; max-width: 600px; }
+        .header-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .chest-icon { width: 50px; image-rendering: pixelated; }
         .inventory-ui {
-            background-color: #C6C6C6;
-            border: 4px solid #373737;
-            border-top-color: #FFF;
-            border-left-color: #FFF;
-            padding: 20px;
-            box-shadow: 10px 10px 0px #000;
+            background-color: #C6C6C6; border: 4px solid #373737;
+            border-top-color: #FFF; border-left-color: #FFF;
+            padding: 20px; box-shadow: 10px 10px 0px #000;
         }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #373737;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        h2 { font-size: 1.2rem; margin: 0; text-transform: uppercase; }
-
+        h2 { font-size: 1.2rem; color: #3F3F3F; text-transform: uppercase; margin: 0; }
         .message-slot {
-            background: #8B8B8B;
-            border: 3px solid #373737;
-            border-top-color: #555;
-            border-left-color: #555;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: left;
-            position: relative;
-            color: white;
-            text-shadow: 2px 2px #3F3F3F;
+            background: #8B8B8B; border: 3px solid #373737; border-top-color: #555; border-left-color: #555;
+            padding: 15px; margin-top: 15px; position: relative; color: white; text-shadow: 2px 2px #3F3F3F;
         }
-
-        .message-text { margin: 0 0 10px 0; font-size: 14px; line-height: 1.4; }
-
-        .time { font-size: 10px; color: #D0D0D0; display: block; }
-
-        /* Delete Button - Minecraft Style */
         .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #A0A0A0;
-            border: 2px solid #000;
-            border-top-color: #D0D0D0;
-            border-left-color: #D0D0D0;
-            color: #AA0000;
-            cursor: pointer;
-            font-family: 'Minecraftia', sans-serif;
-            font-size: 10px;
-            padding: 4px 8px;
+            position: absolute; top: 10px; right: 10px; background: #A0A0A0;
+            border: 2px solid #000; color: #AA0000; font-family: 'Minecraftia', sans-serif;
+            font-size: 10px; cursor: pointer;
         }
-
-        .delete-btn:hover { background: #8B8B8B; }
-
-        #empty-label { color: #555; margin-top: 50px; }
     </style>
 </head>
 <body>
-
     <div class="inventory-container">
-        <img src="chest.png" alt="Tassndo9t Chest" class="chest-icon">
-        
+        <div class="header-row">
+            <img src="chest.png" alt="Chest" class="chest-icon">
+            <h2>Inventory</h2>
+        </div>
         <div class="inventory-ui">
-            <div class="header">
-                <h2>Chest Inventory</h2>
-                <span id="count" style="font-size: 12px;">0 Items</span>
-            </div>
-
-            <div id="messages-display">
-                </div>
+            <div id="messages-display">Loading...</div>
         </div>
     </div>
-
     <script>
         const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
-
         client.onUpdate("messages:list", {}, (messages) => {
             const display = document.getElementById('messages-display');
-            const count = document.getElementById('count');
-            
-            count.innerText = `${messages.length} Items`;
-
-            if (messages.length === 0) {
-                display.innerHTML = `<div id="empty-label">Chest is empty...</div>`;
-                return;
-            }
-
+            if (messages.length === 0) { display.innerHTML = "Chest is empty..."; return; }
             display.innerHTML = messages.map(msg => `
                 <div class="message-slot">
-                    <p class="message-text">${msg.body}</p>
-                    <span class="time">${new Date(msg.time).toLocaleString()}</span>
+                    <p>${msg.body}</p>
                     <button class="delete-btn" onclick="deleteMsg('${msg._id}')">DROP</button>
                 </div>
             `).join('');
         });
-
         async function deleteMsg(id) {
-            if (confirm("Drop this item permanently?")) {
-                try {
-                    await client.mutation("messages:remove", { id: id });
-                } catch (err) {
-                    alert("Error: Item stuck in inventory!");
-                }
-            }
+            if (confirm("Drop item?")) await client.mutation("messages:remove", { id });
         }
     </script>
 </body>

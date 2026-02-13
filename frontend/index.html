@@ -17,147 +17,82 @@
             align-items: center;
             min-height: 100vh;
         }
-
-        .container {
-            text-align: center;
-            width: 100%;
-            max-width: 420px;
+        .container { width: 100%; max-width: 420px; }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
         }
-
-        /* The 3D Chest Icon you wanted */
         .chest-icon {
-            width: 150px;
+            width: 60px;
             height: auto;
-            margin-bottom: -20px; /* Overlaps slightly with the box for a cool effect */
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
             image-rendering: pixelated;
+            filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
         }
-
         .chest-ui {
             background-color: #C6C6C6; 
             border: 4px solid #373737;
             border-top-color: #FFF;
             border-left-color: #FFF;
-            padding: 30px 20px 20px 20px;
+            padding: 25px;
             box-shadow: 10px 10px 0px #000;
         }
-
-        h1 {
-            font-size: 1.4rem;
-            color: #3F3F3F;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
+        h1 { font-size: 1.8rem; color: #3F3F3F; margin: 0; text-transform: uppercase; }
         .input-slot {
             background: #000;
             border: 3px solid #373737;
             border-bottom-color: #FFF;
             border-right-color: #FFF;
             padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            background: transparent;
-            border: none;
-            color: #00FF00; /* Classic "Green" command text */
-            font-family: 'Minecraftia', sans-serif;
-            font-size: 14px;
-            resize: none;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .char-count {
-            text-align: right;
-            font-size: 10px;
-            color: #555;
-            margin-bottom: 15px;
-        }
-
-        /* MC Styled Button */
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: #A0A0A0;
-            border: 4px solid #000;
-            border-top-color: #D0D0D0;
-            border-left-color: #D0D0D0;
-            color: white;
-            font-family: 'Minecraftia', sans-serif;
-            font-size: 16px;
-            cursor: pointer;
-            text-shadow: 2px 2px #3F3F3F;
-            transition: 0.1s;
-        }
-
-        button:hover { background-color: #8B8B8B; }
-        
-        button:active {
-            border: 4px solid #D0D0D0;
-            border-top-color: #000;
-            border-left-color: #000;
-            transform: translateY(2px);
-        }
-
-        #status {
             margin-top: 15px;
-            font-size: 12px;
-            min-height: 18px;
         }
+        textarea {
+            width: 100%; height: 120px; background: transparent; border: none;
+            color: #00FF00; font-family: 'Minecraftia', sans-serif;
+            font-size: 14px; resize: none; outline: none; box-sizing: border-box;
+        }
+        .char-count { text-align: right; font-size: 10px; color: #555; margin: 5px 0 15px 0; }
+        button {
+            width: 100%; padding: 15px; background-color: #A0A0A0;
+            border: 4px solid #000; border-top-color: #D0D0D0; border-left-color: #D0D0D0;
+            color: white; font-family: 'Minecraftia', sans-serif;
+            font-size: 16px; cursor: pointer; text-shadow: 2px 2px #3F3F3F;
+        }
+        button:active { border-top-color: #000; border-left-color: #000; transform: translateY(2px); }
+        #status { margin-top: 15px; font-size: 12px; text-align: center; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <img src="chest.png" alt="Tassndo9t Chest" class="chest-icon">
-        
+        <div class="header-row">
+            <img src="chest.png" alt="Chest" class="chest-icon">
+            <h1>Tassndo9t</h1>
+        </div>
         <div class="chest-ui">
-            <h1>TASSNDO9T</h1>
-            
             <div class="input-slot">
                 <textarea id="messageInput" maxlength="500" oninput="updateCount()" placeholder="Add secret to chest..."></textarea>
             </div>
             <div class="char-count" id="count">0/500</div>
-            
             <button onclick="sendMessage()">STORE MESSAGE</button>
             <div id="status"></div>
         </div>
     </div>
-
     <script>
         const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
-
         function updateCount() {
-            const input = document.getElementById('messageInput');
-            const count = document.getElementById('count');
-            count.innerText = `${input.value.length}/500`;
+            document.getElementById('count').innerText = `${document.getElementById('messageInput').value.length}/500`;
         }
-
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const status = document.getElementById('status');
-            const text = input.value.trim();
-
-            if (!text) {
-                status.innerText = "> Empty chest!";
-                status.style.color = "#AA0000";
-                return;
-            }
-
+            if (!input.value.trim()) { status.innerText = "> Empty!"; return; }
             try {
-                await client.mutation("messages:send", { body: text, author: "Anonymous" });
-                input.value = "";
-                updateCount();
-                status.innerText = "> Message stored!";
-                status.style.color = "#00AA00";
-            } catch (error) {
-                status.innerText = "> Error: Connection lost";
-                status.style.color = "#AA0000";
-            }
+                await client.mutation("messages:send", { body: input.value, author: "Anonymous" });
+                input.value = ""; updateCount();
+                status.innerText = "> Stored!"; status.style.color = "#00AA00";
+            } catch (e) { status.innerText = "> Error!"; status.style.color = "#AA0000"; }
         }
     </script>
 </body>
