@@ -77,28 +77,30 @@
     </div>
 
     <script>
+        // Use your specific Convex Deployment URL
         const client = new convex.ConvexClient("https://kindly-wolf-703.convex.cloud");
 
         function unlock() {
             const pass = document.getElementById('adminPass').value;
-            // We pass the key directly to the real-time listener
+            if (!pass) { alert("Please enter a key."); return; }
             startLiveUpdates(pass);
         }
 
         function startLiveUpdates(pass) {
+            // Passing the password to the 'adminKey' argument in your backend query
             client.onUpdate("messages:list", { adminKey: pass }, (messages) => {
                 const list = document.getElementById('list-content');
                 const authGate = document.getElementById('auth-gate');
                 const display = document.getElementById('messages-display');
                 const title = document.getElementById('title-text');
 
-                // If the server returns null, the key was wrong
+                // If the backend returns null, the key provided doesn't match the Environment Variable
                 if (messages === null) {
-                    alert("Invalid Admin Key!");
+                    alert("Invalid Admin Key! Access Denied.");
                     return;
                 }
 
-                // Successful login
+                // UI Transition
                 authGate.style.display = 'none';
                 display.style.display = 'block';
                 title.innerText = "Inventory";
@@ -118,11 +120,12 @@
 
         async function deleteMsg(id) {
             const pass = document.getElementById('adminPass').value;
-            if (confirm("Drop this item?")) {
+            if (confirm("Drop this item from the chest?")) {
                 try {
+                    // Send the key again to authorize the mutation
                     await client.mutation("messages:remove", { id, adminKey: pass });
                 } catch (err) {
-                    alert("Unauthorized!");
+                    alert("Unauthorized action! Check your admin key.");
                 }
             }
         }

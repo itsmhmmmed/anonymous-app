@@ -1,40 +1,28 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-// CHANGE THIS: This is your master password for the database
-const MASTER_KEY = "Itsmhmmed"; 
+// We pull the password from the environment, NOT the code
+const MASTER_KEY = process.env.ADMIN_PASSWORD; 
 
-// 1. Send Message (Public)
-export const send = mutation({
-  args: { body: v.string(), author: v.string() },
-  handler: async (ctx, args) => {
-    await ctx.db.insert("messages", { 
-      body: args.body, 
-      author: args.author,
-      timestamp: Date.now() 
-    });
-  },
-});
-
-// 2. List Messages (Protected)
 export const list = query({
   args: { adminKey: v.string() },
   handler: async (ctx, args) => {
-    // If the key doesn't match, return an empty list (safe)
-    if (args.adminKey !== MASTER_KEY) {
+    // If the key isn't set on the server yet, block everything for safety
+    if (!MASTER_KEY || args.adminKey !== MASTER_KEY) {
       return null; 
     }
     return await ctx.db.query("messages").order("desc").collect();
   },
 });
 
-// 3. Remove Message (Protected)
 export const remove = mutation({
   args: { id: v.id("messages"), adminKey: v.string() },
   handler: async (ctx, args) => {
-    if (args.adminKey !== MASTER_KEY) {
+    if (!MASTER_KEY || args.adminKey !== MASTER_KEY) {
       throw new Error("Unauthorized");
     }
     await ctx.db.delete(args.id);
   },
 });
+
+// (Keep your 'send' mutation the same as before)
