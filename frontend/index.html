@@ -1,38 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Send me a Secret</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Messages</title>
+    <script src="https://unpkg.com/convex@1.13.0/dist/browser.bundle.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; background: #f4f4f9; }
-        textarea { width: 300px; height: 100px; margin-bottom: 10px; border-radius: 8px; padding: 10px; }
-        button { background: #6200ee; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #1c1e21; text-align: center; }
+        textarea { width: 100%; height: 100px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; resize: none; margin-bottom: 10px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+        #messages-list { width: 100%; max-width: 400px; margin-top: 20px; }
+        .message-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .message-card p { margin: 0; color: #333; }
+        .message-card small { color: #888; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <h2>Send me an anonymous message</h2>
-    <textarea id="msgInput" placeholder="Write something..."></textarea>
-    <button onclick="sendMessage()">Send Message</button>
-    <p id="status"></p>
+
+    <div class="container">
+        <h2>Send an Anonymous Message</h2>
+        <textarea id="messageInput" placeholder="Type your secret message here..."></textarea>
+        <button onclick="sendMessage()">Send Message</button>
+    </div>
+
+    <div id="messages-list">
+        </div>
 
     <script>
-        async function sendMessage() {
-            const text = document.getElementById('msgInput').value;
-            const status = document.getElementById('status');
-            
-            // Replace 'localhost' with your Render/Railway URL later
-            const response = await fetch('http://localhost:5000/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
+        // 2. Initialize the Convex Client
+        // REPLACE THIS URL with the one found in your .env.local file
+        const client = new convex.ConvexClient("https://watchful-shepherd-256.convex.cloud");
 
-            if (response.ok) {
-                status.innerText = "Sent successfully!";
-                document.getElementById('msgInput').value = '';
-            } else {
-                status.innerText = "Error sending message.";
+        // 3. Function to send a message (Mutation)
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert("Please enter a message!");
+                return;
+            }
+
+            try {
+                // Calls the 'send' function in convex/messages.js
+                await client.mutation("messages:send", { 
+                    body: text, 
+                    author: "Anonymous" 
+                });
+                
+                input.value = ""; // Clear input
+                alert("Message sent successfully!");
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert("Failed to send message. Check console.");
             }
         }
+
+        // 4. Function to fetch and display messages (Query)
+        // Convex "onUpdate" automatically refreshes the UI when data changes!
+        function setupSubscription() {
+            client.onUpdate("messages:list", {}, (messages) => {
+                const listContainer = document.getElementById('messages-list');
+                listContainer.innerHTML = messages.map(msg => `
+                    <div class="message-card">
+                        <p>${msg.body}</p>
+                        <small>${new Date(msg.time).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            });
+        }
+
+        // Start listening for messages as soon as the page loads
+        setupSubscription();
     </script>
 </body>
 </html>
