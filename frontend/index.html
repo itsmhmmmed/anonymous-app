@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tassndo9t | Autumn Minecraft</title>
+    <title>Tassndo9t | Autumn Edition</title>
     <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
     <script src="https://unpkg.com/convex@1.13.0/dist/browser.bundle.js"></script>
     <style>
@@ -13,29 +13,29 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* 1. The YouTube Video Wrapper */
+        /* Video Background Styling */
         .video-wrapper {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: -2; pointer-events: none; /* User can't click YouTube buttons */
+            z-index: -2; pointer-events: none;
         }
 
         .video-wrapper iframe {
             width: 100vw; height: 56.25vw; /* 16:9 ratio */
-            min-height: 100vh; min-width: 177.77vh; /* Keeps it full screen */
+            min-height: 100vh; min-width: 177.77vh;
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
         }
 
-        /* 2. The Dark Contrast Overlay (Only BG is darker) */
+        /* Dark overlay for contrast */
         .overlay {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Adjust this 0.7 to change BG darkness */
+            background: rgba(0, 0, 0, 0.7); 
             z-index: -1;
         }
 
-        /* 3. The Main UI Box (Stays bright) */
+        /* The Box UI */
         .chest-ui {
             background-color: #C6C6C6; 
             border: 4px solid #373737;
@@ -81,7 +81,7 @@
 <body>
 
     <div class="video-wrapper">
-        <iframe src="https://www.youtube-nocookie.com/embed/ScMzIvxBSi4?autoplay=1&mute=1&loop=1&playlist=ScMzIvxBSi4&controls=0&showinfo=0&rel=0" 
+        <iframe src="https://www.youtube-nocookie.com/embed/Im6RusHotNY?autoplay=1&mute=1&loop=1&playlist=Im6RusHotNY&controls=0&showinfo=0&rel=0&iv_load_policy=3" 
                 frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 
